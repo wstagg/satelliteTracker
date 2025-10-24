@@ -1,6 +1,6 @@
 import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, '../../cpp/n2yoSatelliteApi/build')
+sys.path.insert(1, '../../cpp/n2yoSatelliteApi/Release')
 import n2yoSatelliteApi
 
 import matplotlib
@@ -24,48 +24,43 @@ m.drawmapboundary(fill_color='aqua')
 
 config = n2yoSatelliteApi.Config()
 
-config.read("../../cpp/n2yoSatelliteApi/config.txt")
+ok = config.read("../../cpp/n2yoSatelliteApi/config.txt")
 
-dataReceiver = n2yoSatelliteApi.DataReceiver(config)
+if ok:
 
-sat_plots = []
+    dataReceiver = n2yoSatelliteApi.DataReceiver(config)
 
-def init():
-    return[]
+    sat_plots = []
 
+    def init():
+        return[]
+    def update(frame):
 
-def update(frame):
-
-    # Clear previous satellite markers
-    for plot in sat_plots:
-        plot.remove()
+        # Clear previous satellite markers
+        for plot in sat_plots:
+            plot.remove()
+            
+        sat_plots.clear()
         
-    sat_plots.clear()
-    
-    # for name in sat_names:
-    #     name.remove()
-    # sat_names.clear()
-    
-    # Get and plot new positions
-    satsAbove = dataReceiver.getSatellitesAbove()
-    print(satsAbove.transactionCount)
-    for sat in satsAbove.satellitesAbove:
-        xpt, ypt = m(sat.lon, sat.lat)
-        plot, = m.plot(xpt, ypt, 'bo', markersize=8)
-        sat_plots.append(plot)
-        print(sat.satName)
-        #sat_names.append(text)
-    
-    return sat_plots
+        # Get and plot new positions
+        satsAbove = dataReceiver.getSatellitesAbove()
+        print(satsAbove.transactionCount)
+        for sat in satsAbove.satellitesAbove:
+            xpt, ypt = m(sat.lon, sat.lat)
+            plot, = m.plot(xpt, ypt, 'bo', markersize = 4)
+            sat_plots.append(plot)
+            print(sat.satName)
+        print(f"transaction count = {satsAbove.transactionCount}")
+        
+        return sat_plots
 
-plt.title("Satellite Tracker")
+    plt.title("Satellite Tracker")
 
-ani = animation.FuncAnimation(
+    ani = animation.FuncAnimation(
     fig,
     update,
     init_func=init,
-    interval=10000,
-    blit=True
-)
+    interval=36000,
+    blit=True)
 
-plt.show()
+    plt.show()

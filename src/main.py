@@ -55,13 +55,15 @@ if ok:
                 plot[0].remove()
             del sat_data[1][0]
 
-        # create the plot for the satellite position
-        xpt, ypt = m(sat_data[0][0].lon, sat_data[0][0].lat)
-        # delete the position from the positions to plot
-        del sat_data[0][0]
+        if len(sat_data[0]) > 0:
 
-        plot = m.plot(xpt, ypt, 'ro', markersize = 6)
-        sat_data[1].append(plot) 
+            # create the plot for the satellite position
+            xpt, ypt = m(sat_data[0][0].lon, sat_data[0][0].lat)
+            # delete the position from the positions to plot
+            del sat_data[0][0]
+
+            plot = m.plot(xpt, ypt, 'ro', markersize = 6)
+            sat_data[1].append(plot) 
 
             
     plt.title(satName + " TRACKER")

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 # Create the figure and axis FIRST
-fig = plt.figure(figsize=(12, 8))
+fig = plt.figure(figsize=(24, 16))
 ax = fig.add_subplot(111)
 
 # Create basemap
@@ -56,7 +56,6 @@ if ok:
             del sat_data[1][0]
 
         if len(sat_data[0]) > 0:
-
             # create the plot for the satellite position
             xpt, ypt = m(sat_data[0][0].lon, sat_data[0][0].lat)
             # delete the position from the positions to plot

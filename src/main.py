@@ -9,6 +9,7 @@ from mpl_toolkits.basemap import Basemap
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from datetime import datetime
 
 # Create the figure and axis FIRST
 fig = plt.figure(figsize=(24, 16))
@@ -20,7 +21,7 @@ m = Basemap(projection='robin', lon_0=0, resolution='c', ax=ax)
 #m.fillcontinents(color='coral', lake_color='aqua')
 #m.drawparallels(np.arange(-90., 120., 30.))
 #m.drawmeridians(np.arange(0., 360., 60.))
-#m.drawmapboundary(fill_color='aqua')
+m.drawmapboundary(fill_color='aqua')
 m.bluemarble()
 m.drawcountries()
 
@@ -35,34 +36,67 @@ if ok:
     tle = dataReceiver.getTle()
 
     satName = tle.satName
-    sat_data = []
     sat_positions = []
     sat_positions_to_clear = []
-    sat_data.append(sat_positions)
-    sat_data.append(sat_positions_to_clear)
+    sat_orbit_lines = []
+    day_night_indications = []
+
 
     
     def update(frame):            
+        
         # if no satellite positions left to plot, get more
-        if len(sat_data[0]) == 0:
+        if len(sat_positions) == 0:
             satellitePosition = dataReceiver.getSatellitePosition()
-            sat_data[0] = satellitePosition.positionData
-            print(f"num of positions {len(sat_data[0])}")
+            for pos in satellitePosition.positionData:
+                sat_positions.append(pos)
+            
+            # draw upcoming trajectory 
+            orbit_line = m.drawgreatcircle(sat_positions[0].lon, 
+                                           sat_positions[0].lat, 
+                                           sat_positions[len(sat_positions) - 1].lon, 
+                                           sat_positions[len(sat_positions) - 1].lat, 
+                                           linewidth=2,
+                                           color='r')
+            
+            sat_orbit_lines.append(orbit_line)
+
+            if len(sat_orbit_lines) > 1:
+                sat_orbit_lines[len(sat_orbit_lines) - 2][0].set_color("green")
+
+            if len(sat_orbit_lines) > 40:
+                sat_orbit_lines[0][0].remove()
+                del sat_orbit_lines[0]
+            
+
+            # update day/night indication
+            #TODO fix
+            # if len(day_night_indications):
+            #     day_night_indications[0][0].remove()
+            #     del day_night_indications
+                
+                
+            # date = datetime.now()
+            # day_night = m.nightshade(date)
+            # day_night_indications.append(day_night)
+            
+
 
         # remove the last drawn plot
-        if len(sat_data[1]) > 0:
-            for plot in sat_data[1]:
+        if len(sat_positions_to_clear) > 0:
+            for plot in sat_positions_to_clear:
                 plot[0].remove()
-            del sat_data[1][0]
+            del sat_positions_to_clear[0]
 
-        if len(sat_data[0]) > 0:
+        # plot the next satellite position
+        if len(sat_positions) > 0:
             # create the plot for the satellite position
-            xpt, ypt = m(sat_data[0][0].lon, sat_data[0][0].lat)
+            xpt, ypt = m(sat_positions[0].lon, sat_positions[0].lat)
             # delete the position from the positions to plot
-            del sat_data[0][0]
+            del sat_positions[0]
 
-            plot = m.plot(xpt, ypt, 'ro', markersize = 6)
-            sat_data[1].append(plot) 
+            plot = m.plot(xpt, ypt, 'rD', markersize = 6)
+            sat_positions_to_clear.append(plot) 
 
             
     plt.title(satName + " TRACKER")

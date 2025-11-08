@@ -69,16 +69,16 @@ if ok:
                 del sat_orbit_lines[0]
             
 
-            # update day/night indication
-            #TODO fix
-            # if len(day_night_indications):
-            #     day_night_indications[0][0].remove()
-            #     del day_night_indications
+            # update day/night cycle
+            if len(day_night_indications) != 0:
+                for shade in day_night_indications:
+                    shade.remove()
+                del day_night_indications[0]
                 
                 
-            # date = datetime.now()
-            # day_night = m.nightshade(date)
-            # day_night_indications.append(day_night)
+            date = datetime.now()
+            day_night = m.nightshade(date)
+            day_night_indications.append(day_night)
             
 
 
@@ -97,7 +97,10 @@ if ok:
 
             plot = m.plot(xpt, ypt, 'rD', markersize = 6)
             sat_positions_to_clear.append(plot) 
-
+date = datetime.now()
+            day_night = m.nightshade(date)
+            day_night_indications.append(day_night)
+            
             
     plt.title(satName + " TRACKER")
 

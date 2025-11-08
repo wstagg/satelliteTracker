@@ -60,25 +60,26 @@ if ok:
                                            color='r')
             
             sat_orbit_lines.append(orbit_line)
-
+            
+            # set previous orbit line to green
             if len(sat_orbit_lines) > 1:
                 sat_orbit_lines[len(sat_orbit_lines) - 2][0].set_color("green")
 
-            if len(sat_orbit_lines) > 40:
+            if len(sat_orbit_lines) > 50:
                 sat_orbit_lines[0][0].remove()
                 del sat_orbit_lines[0]
             
 
-            # update day/night indication
-            #TODO fix
-            # if len(day_night_indications):
-            #     day_night_indications[0][0].remove()
-            #     del day_night_indications
+            # update day/night cycle
+            if len(day_night_indications) != 0:
+                for cycle in day_night_indications:
+                    cycle.remove()
+                del day_night_indications[0]
                 
                 
-            # date = datetime.now()
-            # day_night = m.nightshade(date)
-            # day_night_indications.append(day_night)
+            date = datetime.now()
+            day_night = m.nightshade(date)
+            day_night_indications.append(day_night)
             
 
 

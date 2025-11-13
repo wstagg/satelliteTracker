@@ -6,7 +6,6 @@ import n2yoSatelliteApi
 import matplotlib
 matplotlib.use('TkAgg') # Set interactive backend first
 from mpl_toolkits.basemap import Basemap
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from datetime import datetime
@@ -19,62 +18,55 @@ ax = fig.add_subplot(111)
 
 # Create basemap
 map = Basemap(projection='robin', lon_0=0, resolution='c', ax=ax)
-#map.drawcoastlines()
-#map.fillcontinents(color='coral', lake_color='aqua')
-#map.drawparallels(np.arange(-90., 120., 30.))
-#map.drawmeridians(np.arange(0., 360., 60.))
 map.drawmapboundary(fill_color='aqua')
 map.bluemarble()
 map.drawcountries()
 
-
+# Read the config file for the 2yo-satellite-api
 config = n2yoSatelliteApi.Config()
-
 ok = config.read("../../cpp/n2yo-satellite-api/config.txt")
 
 if ok:
     dataReceiver = n2yoSatelliteApi.DataReceiver(config)
-
     satellitesToPlot = []
     sat_positions_to_clear = []
-    sat_orbit_lines = []
     day_night_indications = []
     date = datetime.now()
-
+    TOTAL_TRACKABLE_SATELLITES = 83
 
     satellites = dataReceiver.getSatellitesAbove()
     print("Getting satellites above...")
     for sat in satellites.satellitesAbove:
         print(f"sat id {sat.satId} sat name {sat.satName}")
         satellite = Satellite(sat.satId, sat.satName, config)
-        satellitesToPlot.append(satellite)
+        if len(satellitesToPlot) <= TOTAL_TRACKABLE_SATELLITES:
+            satellitesToPlot.append(satellite)
+        else:
+            break
 
     day_night = map.nightshade(date)
     day_night_indications.append(day_night)
-
-    # def init():
-    #     satellites = dataReceiver.getSatellitesAbove()
-
-    #     for sat in satellites.satellitesAbove:
-    #         print(f"sat id {sat.satId} sat name {sat.satName}")
-    #         satellite = Satellite(sat.satId, sat.satName, config)
-    #         satellitesToPlot.append(satellite)
-
-    #     day_night = map.nightshade(date)
-    #     day_night_indications.append(day_night)
-
-    
-    def update(frame):            
-            
+ 
+    def update(frame):              
         # remove the last drawn plot of each satellite
         if len(sat_positions_to_clear) > 0:
             for plot in sat_positions_to_clear:
                 plot[0].remove()
             sat_positions_to_clear.clear()
         
-        # plot current position of each satellite
+        # plot current position of each satellite and draw trajectory
         for sat in satellitesToPlot:
             print(f"plotting sat name {sat.name}")
+            
+            if sat.trajectoryUpdated:
+                trajectory = sat.getTrajectory()
+                map.drawgreatcircle(trajectory["startLon"], 
+                                trajectory["startLat"], 
+                                trajectory["endLon"], 
+                                trajectory["endLat"],
+                                linewidth=2, 
+                                color='green')
+            
             pos = sat.getSatellitePosition()
             lon = pos["lon"]
             lat = pos["lat"]

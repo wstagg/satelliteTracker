@@ -30,10 +30,16 @@ if ok:
     dataReceiver = n2yoSatelliteApi.DataReceiver(config)
     satellitesToPlot = []
     satPlotsToClear = []
-    day_night_indications = []
+    dayNightIndications = []
     date = datetime.now()
-    TOTAL_TRACKABLE_SATELLITES = 83
+    TOTAL_TRACKABLE_SATELLITES = 80
+    
+    # Plot Observer position
+    lxpt, lypt = map(config.getConfigValues().observerLon, config.getConfigValues().observerLat)
+    map.plot(lxpt, lypt, marker = '*', color = "orange", markersize = 8)
+    plt.text(lxpt + 20000, lypt + 10000, "You are here")
 
+    # Track some random satellites that pass over
     satellites = dataReceiver.getSatellitesAbove()
     print("Getting satellites above...")
     for sat in satellites.satellitesAbove:
@@ -43,33 +49,38 @@ if ok:
             satellitesToPlot.append(satellite)
         else:
             break
+    
+    # Track the ISS
+    ISS = Satellite(25544, "ISS", config)
+    satellitesToPlot.append(ISS)
 
+    # Set initial day/night cycle
     day_night = map.nightshade(date)
-    day_night_indications.append(day_night)
+    dayNightIndications.append(day_night)
  
     def update(frame):              
         # remove the last drawn plot of each satellite
-        if len(satPlotsToClear) > 0:
-            for plot in satPlotsToClear:
-                plot[0][0].remove()
-                plot[1].remove()
-            satPlotsToClear.clear()
+        for plot in satPlotsToClear:
+            plot[0][0].remove()
+            plot[1].remove()
+        satPlotsToClear.clear()
         
         # plot current position of each satellite and draw trajectory
-        for sat in satellitesToPlot:
-            print(f"plotting sat name {sat.name}")
-            
-            if sat.trajectoryUpdated:
-                trajectory = sat.getTrajectory()
+        for sat in satellitesToPlot: 
+            if sat.trajectoryEndPointUpdated:
+                if sat.trajectoryLineSet:
+                    sat.trajectoryLine[0].remove()
                 
-                map.drawgreatcircle(trajectory["startLon"], 
-                                trajectory["startLat"], 
-                                trajectory["endLon"], 
-                                trajectory["endLat"],
-                                del_s=1,
-                                linewidth=2, 
-                                color='green')
-            
+                trajectory = sat.getTrajectory()
+                sat.trajectoryLine = map.drawgreatcircle(trajectory["startLon"], 
+                                    trajectory["startLat"], 
+                                    trajectory["endLon"], 
+                                    trajectory["endLat"],
+                                    del_s=1,
+                                    linewidth=2, 
+                                    color='green')
+                sat.trajectoryLineSet = True
+                              
             pos = sat.getSatellitePosition()
             lon = pos["lon"]
             lat = pos["lat"]
@@ -80,22 +91,21 @@ if ok:
             satPlotsToClear.append((plot, text)) 
 
         # update day/night cycle
-        if len(day_night_indications) != 0:
-            for cycle in day_night_indications:
-                cycle.remove()
-            del day_night_indications[0]
+        for cycle in dayNightIndications:
+            cycle.remove()
+        del dayNightIndications[0]
                
         date = datetime.now()
         day_night = map.nightshade(date)
-        day_night_indications.append(day_night)
+        dayNightIndications.append(day_night)
   
+    
     plt.title("Satellite Tracker")
-
     ani = animation.FuncAnimation(
     fig,
     update,
     #init_func=init,
-    interval=900,
+    interval=1000,
     blit=False)
 
     plt.show()

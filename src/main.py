@@ -29,7 +29,7 @@ ok = config.read("../../cpp/n2yo-satellite-api/config.txt")
 if ok:
     dataReceiver = n2yoSatelliteApi.DataReceiver(config)
     satellitesToPlot = []
-    sat_positions_to_clear = []
+    satPlotsToClear = []
     day_night_indications = []
     date = datetime.now()
     TOTAL_TRACKABLE_SATELLITES = 83
@@ -49,10 +49,11 @@ if ok:
  
     def update(frame):              
         # remove the last drawn plot of each satellite
-        if len(sat_positions_to_clear) > 0:
-            for plot in sat_positions_to_clear:
-                plot[0].remove()
-            sat_positions_to_clear.clear()
+        if len(satPlotsToClear) > 0:
+            for plot in satPlotsToClear:
+                plot[0][0].remove()
+                plot[1].remove()
+            satPlotsToClear.clear()
         
         # plot current position of each satellite and draw trajectory
         for sat in satellitesToPlot:
@@ -60,10 +61,12 @@ if ok:
             
             if sat.trajectoryUpdated:
                 trajectory = sat.getTrajectory()
+                
                 map.drawgreatcircle(trajectory["startLon"], 
                                 trajectory["startLat"], 
                                 trajectory["endLon"], 
                                 trajectory["endLat"],
+                                del_s=1,
                                 linewidth=2, 
                                 color='green')
             
@@ -72,7 +75,9 @@ if ok:
             lat = pos["lat"]
             xpt, ypt = map(lon, lat)
             plot = map.plot(xpt, ypt, 'rD', markersize = 6)
-            sat_positions_to_clear.append(plot) 
+            text = plt.text(xpt + 20000, ypt + 10000, sat.name)
+
+            satPlotsToClear.append((plot, text)) 
 
         # update day/night cycle
         if len(day_night_indications) != 0:
@@ -90,7 +95,7 @@ if ok:
     fig,
     update,
     #init_func=init,
-    interval=1000,
+    interval=900,
     blit=False)
 
     plt.show()

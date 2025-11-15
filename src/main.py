@@ -78,14 +78,15 @@ if ok:
                                     trajectory["endLat"],
                                     del_s=1,
                                     linewidth=2, 
-                                    color='green')
+                                    color = sat.colour,
+                                    alpha = 0.6)
                 sat.trajectoryLineSet = True
                               
             pos = sat.getSatellitePosition()
             lon = pos["lon"]
             lat = pos["lat"]
             xpt, ypt = map(lon, lat)
-            plot = map.plot(xpt, ypt, 'rD', markersize = 6)
+            plot = map.plot(xpt, ypt, marker = 'D', color = sat.colour, markersize = 6)
             text = plt.text(xpt + 20000, ypt + 10000, sat.name)
 
             satPlotsToClear.append((plot, text)) 

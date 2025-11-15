@@ -2,8 +2,10 @@ import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
 sys.path.insert(1, '../../cpp/n2yo-satellite-api/cmake-build-release')
 import n2yoSatelliteApi
+import numpy as np
 
-MAX_TRAJECTORY_ENDPOINT_UPDATES = 50
+
+MAX_TRAJECTORY_ENDPOINT_UPDATES = 30
 
 class Satellite:
     def __init__(self,_noradId, _satName, _config):
@@ -15,7 +17,7 @@ class Satellite:
         self.trajectory = {"startLat": 0.0, "startLon": 0.0, "endLat": 0.0, "endLon": 0.0}
         self.trajectoryLineSet = False
         self.trajectoryEndPointUpdateCount = 0
-
+        self.colour = tuple(np.random.random(size=3))
         self.updateSatellitePositions()
         self.setTrajectoryStartPoint(self.satPositions[0].lat, self.satPositions[0].lon)
 

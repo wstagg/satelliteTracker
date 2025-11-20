@@ -33,13 +33,15 @@ class Satellite:
         
         for pos in satellitePosition.positionData:
                 self.satPositions.append(pos)
-
-        if self.trajectoryEndPointUpdateCount >= MAX_TRAJECTORY_ENDPOINT_UPDATES:
-            self.setTrajectoryStartPoint(self.satPositions[0].lat, self.satPositions[0].lon)
-            self.trajectoryEndPointUpdateCount = 0
         
-        self.updateTrajectoryEndPoint(self.satPositions[len(self.satPositions) -1 ].lat, 
-                                self.satPositions[len(self.satPositions) -1 ].lon)
+        if len(self.satPositions) > 2:
+
+            if self.trajectoryEndPointUpdateCount >= MAX_TRAJECTORY_ENDPOINT_UPDATES:
+                self.setTrajectoryStartPoint(self.satPositions[0].lat, self.satPositions[0].lon)
+                self.trajectoryEndPointUpdateCount = 0
+            
+            self.updateTrajectoryEndPoint(self.satPositions[len(self.satPositions) -1 ].lat, 
+                                    self.satPositions[len(self.satPositions) -1 ].lon)
 
     def getSatellitePosition(self):
         if len(self.satPositions) == 0:

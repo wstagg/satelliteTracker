@@ -1,6 +1,3 @@
-import sys
-# caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, '../../cpp/n2yo-satellite-api/cmake-build-release')
 import OrbitFetcher
 import numpy as np
 

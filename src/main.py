@@ -1,6 +1,3 @@
-import sys
-# caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, '../../cpp/n2yo-satellite-api/cmake-build-release-with-pybindings')
 import OrbitFetcher
 import matplotlib
 matplotlib.use('TkAgg')
@@ -24,7 +21,7 @@ ax.stock_img()  # Blue marble-style background
 
 # Read the config file
 config = OrbitFetcher.Config()
-ok = config.read("../../cpp/n2yo-satellite-api/config.txt")
+ok = config.read("config.txt")
 
 if ok:
     dataReceiver = OrbitFetcher.DataReceiver(config)

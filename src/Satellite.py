@@ -1,7 +1,7 @@
 import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
 sys.path.insert(1, '../../cpp/n2yo-satellite-api/cmake-build-release')
-import n2yoSatelliteApi
+import OrbitFetcher
 import numpy as np
 
 
@@ -12,7 +12,7 @@ class Satellite:
         self.noradId = _noradId
         self.name = _satName
         self.config = _config
-        self.dataReceiver = n2yoSatelliteApi.DataReceiver(_config)
+        self.dataReceiver = OrbitFetcher.DataReceiver(_config)
         self.satPositions = []
         self.trajectory = {"startLat": 0.0, "startLon": 0.0, "endLat": 0.0, "endLon": 0.0}
         self.trajectoryLineSet = False
